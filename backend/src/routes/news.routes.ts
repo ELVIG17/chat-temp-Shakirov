@@ -13,7 +13,7 @@ newsRouter.get('/', async (req: AuthRequest, res) => {
   res.json(items)
 })
 
-newsRouter.get('/:id', async (req: AuthRequest, res) => {
+newsRouter.get('/:id', async (req: AuthRequest<{ id: string }>, res) => {
   const item = await NewsService.get(req.user!.userId, req.params.id)
   if (!item) return res.status(404).json({ message: 'Not found' })
   res.json(item)
@@ -33,22 +33,13 @@ newsRouter.post(
   },
 )
 
-newsRouter.put(
-  '/:id',
-  validate(
-    z.object({
-      title: z.string().min(1).optional(),
-      text: z.string().min(1).optional(),
-    }),
-  ),
-  async (req: AuthRequest, res) => {
-    const ok = await NewsService.update(req.user!.userId, req.params.id, req.body)
-    if (!ok) return res.status(404).json({ message: 'Not found' })
-    res.json({ ok: true })
-  },
-)
+newsRouter.put('/:id', /* validate(...) */ async (req: AuthRequest<{ id: string }>, res) => {
+  const ok = await NewsService.update(req.user!.userId, req.params.id, req.body)
+  if (!ok) return res.status(404).json({ message: 'Not found' })
+  res.json({ ok: true })
+})
 
-newsRouter.delete('/:id', async (req: AuthRequest, res) => {
+newsRouter.delete('/:id', async (req: AuthRequest<{ id: string }>, res) => {
   const ok = await NewsService.remove(req.user!.userId, req.params.id)
   if (!ok) return res.status(404).json({ message: 'Not found' })
   res.json({ ok: true })
