@@ -9,10 +9,11 @@ export default defineConfig({
         target: 'http://localhost:3002',
         changeOrigin: true,
       },
-      '/socket.io': {
-        target: 'ws://localhost:3002',
-        ws: true,
-      },
+      // ⚠️ Закомментируйте или удалите WebSocket прокси
+      // '/socket.io': {
+      //   target: 'ws://localhost:3002',
+      //   ws: true,
+      // },
     },
   },
 })

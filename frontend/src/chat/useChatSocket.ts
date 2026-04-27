@@ -38,13 +38,15 @@ export function useChatSocket(backendUrl: string) {
   const connect = useCallback(
     (payload: ChatJoinPayload) => {
       setError(null)
-
-      // Если уже есть активное соединение — разрываем, чтобы не ловить дубликаты событий.
       disconnect()
+
+      console.log('Connecting to backend:', backendUrl) // 👈 Добавьте для отладки
 
       const socket = io(backendUrl, {
         autoConnect: false,
         transports: ['websocket'],
+        path: '/socket.io',
+        withCredentials: true,
       })
 
       socketRef.current = socket
@@ -52,6 +54,7 @@ export function useChatSocket(backendUrl: string) {
       setStatus('connecting')
 
       socket.on('connect', () => {
+        console.log('Socket connected!') // 👈 Отладка
         const onJoinAck = (ack: ChatJoinAck) => {
           if (ack.ok) {
             setStatus('connected')
@@ -65,11 +68,13 @@ export function useChatSocket(backendUrl: string) {
       })
 
       socket.on('connect_error', (e) => {
+        console.error('Socket connection error:', e) // 👈 Отладка
         setStatus('error')
         setError(e instanceof Error ? e.message : 'Ошибка подключения')
       })
 
       socket.on('disconnect', () => {
+        console.log('Socket disconnected') // 👈 Отладка
         setStatus('disconnected')
       })
 
@@ -103,7 +108,7 @@ export function useChatSocket(backendUrl: string) {
         },
       )
     },
-    [setStatus],
+    [],
   )
 
   useEffect(() => {
@@ -120,4 +125,3 @@ export function useChatSocket(backendUrl: string) {
     isSystemMessage,
   }
 }
-

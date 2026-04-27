@@ -3,18 +3,25 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useChatSocket } from './chat/useChatSocket'
 
 function App() {
-  const backendUrl = useMemo(
-    () => import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3002',
-    [],
-  )
+  const backendUrl = useMemo(() => {
+    // Авто-определение в GitHub Codespaces
+    if (typeof window !== 'undefined' && window.location.hostname.includes('app.github.dev')) {
+      // Меняем порт с 5173 на 3002
+      return window.location.origin.replace(':5173', ':3002')
+    }
+    return import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:3002'
+  }, [])
 
   const [room, setRoom] = useState('public')
   const [nickname, setNickname] = useState('user')
   const [text, setText] = useState('')
   const [uiError, setUiError] = useState<string | null>(null)
 
-  const { status, error, messages, connect, disconnect, sendMessage } =
-    useChatSocket(backendUrl)
+  console.log('Backend URL будет:', backendUrl)
+const { status, error, messages, connect, disconnect, sendMessage } =
+  useChatSocket(backendUrl)
+
+
 
   const endRef = useRef<HTMLDivElement | null>(null)
 

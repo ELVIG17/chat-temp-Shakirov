@@ -41,9 +41,21 @@ const httpServer = http.createServer(app)
 
 const io = new Server(httpServer, {
   cors: {
-    origin: env.CLIENT_ORIGIN,
+    origin: (origin, callback) => {
+      // Разрешаем все github.dev домены и локальный
+      if (!origin || 
+          origin.includes('.app.github.dev') || 
+          origin.includes('localhost')) {
+        callback(null, true)
+      } else {
+        callback(new Error('Not allowed by CORS'))
+      }
+    },
     methods: ['GET', 'POST'],
+    credentials: true,
+    allowedHeaders: ['*']
   },
+  transports: ['websocket', 'polling'], // polling как fallback
   maxHttpBufferSize: env.SOCKET_MAX_HTTP_BUFFER * 1024 * 1024,
 })
 
